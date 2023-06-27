@@ -207,3 +207,22 @@ class VF747Protocol:
 
         if packet.command != 0x03:
             raise RuntimeError("Set Relay command failed")
+
+    def get_relay(self):
+        """
+        Gets the status of the relays
+        :return: (relay1, relay2)
+        """
+        self.send_command(0x0B, [])
+        packet = self.read_return_packet()
+
+        if packet.command != 0x08:
+            raise RuntimeError("Received wrong packet for answer")
+
+        if len(packet.packet_data) < 1:
+            raise RuntimeError("Return packet is invalid")
+
+        relay1 = bool(packet.packet_data[0] & 0x01)
+        relay2 = bool(packet.packet_data[0] & 0x02)
+
+        return relay1, relay2
