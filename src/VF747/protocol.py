@@ -166,6 +166,10 @@ class VF747Protocol:
             raise RuntimeError("Invalid baudrate")
 
         self.send_command(0x01, [param])
+        packet = self.read_return_packet()
+
+        if packet.command != 0x01:
+            raise RuntimeError("Received wrong answer")
 
     def get_reader_version(self):
         """
