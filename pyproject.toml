@@ -1,0 +1,5 @@
+[buildsystem]
+requires = [
+    "pyserial>=3.5"
+]
+build-backend = "setuptools.build_meta"
