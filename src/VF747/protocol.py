@@ -93,7 +93,7 @@ class VF747Protocol:
 
         return packet
 
-    def error_to_str(error_code):
+    def error_to_str(self, error_code):
         """
         Returns a readable representation for given error code
         """
@@ -136,3 +136,33 @@ class VF747Protocol:
             return "Other error"
         else:
             return "Unknown error"
+
+    def set_baud_rate(self, baudrate):
+        """
+        Sets the baudrate for communication on the reader
+        :param baudrate: Legal baudrate
+        :return:
+        """
+        param = 0x0
+        if baudrate == 600:
+            param = 0x0
+        elif baudrate == 1200:
+            param = 0x01
+        elif baudrate == 2400:
+            param = 0x02
+        elif baudrate == 4800:
+            param = 0x03
+        elif baudrate == 9600:
+            param = 0x04
+        elif baudrate == 19200:
+            param = 0x05
+        elif baudrate == 38400:
+            param = 0x06
+        elif baudrate == 57600:
+            param = 0x07
+        elif baudrate == 115200:
+            param = 0x08
+        else:
+            raise RuntimeError("Invalid baudrate")
+
+        self.send_command(0x01, [param])
