@@ -226,3 +226,37 @@ class VF747Protocol:
         relay2 = bool(packet.packet_data[0] & 0x02)
 
         return relay1, relay2
+
+    def set_output_power(self, power):
+        raise NotImplementedError()
+
+    def set_frequency(self, frequency):
+        raise NotImplementedError()
+
+    def read_param(self):
+        """
+        Gets the current settings parameter from the reader
+        :return:
+        """
+        self.send_command(0x06, [])
+        packet = self.read_return_packet()
+
+        if packet.command != 0x06:
+            raise RuntimeError("Received invalid packet")
+
+        if len(packet.packet_data) != 32:
+            raise RuntimeError("Return packet has invalid data")
+
+        return packet.packet_data
+
+    def set_param(self, param):
+        """
+        Seths the new settings paramters for the reader
+        :param param: settings (32 bytes array)
+        :return:
+        """
+        self.send_command(0x09, param)
+        packet = self.read_return_packet()
+
+        if packet.command != 0x09:
+            raise RuntimeError("Received invalid packet")
