@@ -188,3 +188,18 @@ class VF747Protocol:
         minor_version_sw = packet.packet_data[3]
         return (major_version_hw, minor_version_hw), (major_version_sw, minor_version_sw)
 
+    def set_relay(self, relay1: bool, relay2: bool):
+        """
+        Set the relay status for the reader
+        :param relay1: status for relay 1
+        :param relay2: status for relay 2
+        :return:
+        """
+
+        param = int(relay1) + (int(relay2) << 2)
+
+        self.send_command(0x03, [param])
+        packet = self.read_return_packet()
+
+        if packet.command != 0x03:
+            raise RuntimeError("Set Relay command failed")
