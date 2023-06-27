@@ -92,3 +92,47 @@ class VF747Protocol:
             logger.warning("Received wrong checksum! Data may be inconsistent!")
 
         return packet
+
+    def error_to_str(error_code):
+        """
+        Returns a readable representation for given error code
+        """
+
+        if error_code == 0x00:
+            return "Command success or detect correct"
+        elif error_code == 0x01:
+            return "Anteanna connection fail"
+        elif error_code == 0x02:
+            return "Detect no tag"
+        elif error_code == 0x03:
+            return "illegal tag"
+        elif error_code == 0x04:
+            return "read/write power is inadequat"
+        elif error_code == 0x05:
+            return "write protection in this area"
+        elif error_code == 0x06:
+            return "checksum error"
+        elif error_code == 0x07:
+            return "paramter wrong"
+        elif error_code == 0x08:
+            return "nonexistent data rea"
+        elif error_code == 0x09:
+            return "wrong password"
+        elif error_code == 0x0A:
+            return "kill password cant be 0"
+        elif error_code == 0x0B:
+            return "when reader is in automode the command is illegal"
+        elif error_code == 0x0C:
+            return "Illegal user with unmatched password"
+        elif error_code == 0x0D:
+            return "RF interference from external"
+        elif error_code == 0x0E:
+            return "Read protection on tag"
+        elif error_code == 0x1E:
+            return "Invalid command, such as wrong parameter command"
+        elif error_code == 0x1F:
+            return "Unknown command"
+        elif error_code == 0x20:
+            return "Other error"
+        else:
+            return "Unknown error"
