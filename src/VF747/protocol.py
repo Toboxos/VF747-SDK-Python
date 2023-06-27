@@ -166,3 +166,25 @@ class VF747Protocol:
             raise RuntimeError("Invalid baudrate")
 
         self.send_command(0x01, [param])
+
+    def get_reader_version(self):
+        """
+        Gets the major and minor version of hardware and software
+        :return: (major_hw, minor_hw), (major_sw, minor_sw)
+        """
+        self.send_command(0x02, [])
+        packet = self.read_return_packet()
+
+        if packet.command != 0x02:
+            logger.warning("get_reader_version(): received invalid return command")
+
+        if len(packet.packet_data) < 0x04:
+            logger.error("get_reader_version(): packet data invalid")
+            return
+
+        major_version_hw = packet.packet_data[0]
+        minor_version_hw = packet.packet_data[1]
+        major_version_sw = packet.packet_data[2]
+        minor_version_sw = packet.packet_data[3]
+        return (major_version_hw, minor_version_hw), (major_version_sw, minor_version_sw)
+
