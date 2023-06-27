@@ -305,3 +305,47 @@ class VF747Protocol:
 
         if packet.command != 0x0F:
             raise RuntimeError("Received invalid packet")
+
+    def clear_memory(self):
+        """
+        Remove the cache of tag data in the reader
+        :return:
+        """
+        self.send_command(0x10, [])
+        packet = self.read_return_packet()
+
+        if packet.command != 0x10:
+            raise RuntimeError("Received invalid packet")
+
+    def set_reader_time(self, new_time):
+        raise NotImplementedError()
+
+    def get_reader_time(self):
+        raise NotImplementedError()
+
+    def set_report_filter(self):
+        raise NotImplementedError()
+
+    def get_report_filter(self):
+        raise NotImplementedError()
+
+    def set_reader_network_address(self):
+        raise NotImplementedError()
+
+    def get_reader_network_address(self):
+        raise NotImplementedError()
+
+    def set_reader_mac(self):
+        raise NotImplementedError()
+
+    def get_reader_mac(self):
+        raise NotImplementedError()
+
+    def report_now(self):
+        raise NotImplementedError()
+
+    def get_tag_info(self):
+        raise NotImplementedError()
+
+    def get_reader_id(self):
+        raise NotImplementedError()
