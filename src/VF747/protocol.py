@@ -260,3 +260,21 @@ class VF747Protocol:
 
         if packet.command != 0x09:
             raise RuntimeError("Received invalid packet")
+
+    def read_auto_param(self):
+        raise NotImplementedError()
+
+    def set_auto_param(self):
+        raise NotImplementedError()
+
+    def select_antenna(self, antenna):
+        """
+        Defines which antenna should be used to transmit/receive signal
+        :param antenna: number of antenna (0-3)
+        :return:
+        """
+        self.send_command(0x0A, [0x01 << antenna])
+        packet = self.read_return_packet()
+
+        if packet.command != 0x0A:
+            raise RuntimeError("Received invalid packet")
