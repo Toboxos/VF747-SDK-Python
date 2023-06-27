@@ -278,3 +278,14 @@ class VF747Protocol:
 
         if packet.command != 0x0A:
             raise RuntimeError("Received invalid packet")
+
+    def restore_factory_settings(self):
+        """
+        Set back reader settings to factory settings
+        :return:
+        """
+        self.send_command(0x0E, [])
+        packet = self.read_return_packet()
+
+        if packet.command != 0x0E:
+            raise RuntimeError("Received invalid packet")
