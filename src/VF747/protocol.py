@@ -289,3 +289,19 @@ class VF747Protocol:
 
         if packet.command != 0x0E:
             raise RuntimeError("Received invalid packet")
+
+    def reboot(self):
+        raise NotImplementedError()
+
+    def set_auto_mode(self, status: bool):
+        """
+        Enables / Disabled auto mode
+        :param status: true or false
+        :return:
+        """
+
+        self.send_command(0x0F, [int(status)])
+        packet = self.read_return_packet()
+
+        if packet.command != 0x0F:
+            raise RuntimeError("Received invalid packet")
