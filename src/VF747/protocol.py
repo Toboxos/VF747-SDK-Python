@@ -55,6 +55,19 @@ class Packet:
 
 
 class VF747Protocol:
+    """
+    Implementation of the protocol to communicate to the
+    VF747 reader via serial connection.
+
+    For tag operations currently only ISO18000-6C tags are
+    supported.
+    """
+
+    # Memory banks
+    MEM_PASSWORD = 0
+    MEM_EPC = 1
+    MEM_TID = 2
+    MEM_USER = 3
 
     def __init__(self, connection):
         """
@@ -349,3 +362,50 @@ class VF747Protocol:
 
     def get_reader_id(self):
         raise NotImplementedError()
+
+    def list_tag_id(self, memory_bank, mask_start, mask_size, mask):
+        """
+        This functions reads all tag IDs available in the radiation field of the antenna.
+
+        It returns the total number of tags and a part of the tag IDs.
+        If there are too many tags around not all tag IDs will be return by this function.
+        The remaining tag IDs must be read from the memory.
+
+        :param memory_bank:     The memory bank where the TAG_ID should be read from
+        :param mask_start:      Offset in the memory bank in bits where the mask should be applied
+        :param mask_size:       The size of the mask in bits for filtering
+        :param mask:            The mask for filtering
+        :return:                Tuple with total number of tags and partial list of tag ids
+        """
+
+        data = bytearray([memory_bank])  # Param 1: memory bank
+        data += int.to_bytes(mask_start, length=2, byteorder="big")  # Param 2: start address of mask?
+        data += bytearray([mask_size])  # Param 3: size of mask in bits
+        data += mask  # Param 4: mask data bytes
+
+        self.send_command(0xEE, data)
+        packet = self.read_return_packet()
+
+        if packet.command != 0xEE:
+            raise RuntimeError("Received invalid return")
+
+        num_tags_total = packet.packet_data[0]
+        tags = []
+
+        ptr = 1
+        data = packet.packet_data
+        while ptr < len(data):
+            num_words = data[ptr]  # number of words for the next tag id
+            start = ptr + 1  # next bytes is start
+            end = ptr + 1 + 2 * num_words
+
+            # Boundary check
+            if end > len(data):
+                break
+
+            tag_id = bytes_to_hex_string(data[start:end])
+            tags.append(tag_id)
+
+            ptr = end  # move pointer to next id
+
+        return num_tags_total, tags
