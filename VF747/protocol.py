@@ -16,7 +16,7 @@ class Packet:
 
         self.boot_code = boot_code
         self.command = command
-        self.packet_data = data
+        self.packet_data = bytearray(data)
 
     def effective_length(self):
         """
@@ -42,9 +42,9 @@ class Packet:
         return checksum
 
     def __bytes__(self):
-        return bytearray(
+        return bytes(bytearray(
             [self.boot_code] + [self.effective_length()] + [self.command]
-        ) + self.packet_data + bytearray([self.checksum()])
+        ) + self.packet_data + bytearray([self.checksum()]))
 
     def __str__(self):
         s = ""
@@ -90,14 +90,14 @@ class VF747Protocol:
         self.connection.write(bytes(packet))
 
     def read_return_packet(self):
-        boot_code = self.connection.read(1)
+        boot_code = int.from_bytes(self.connection.read(1), byteorder='big')
         if boot_code != 0xF0 and boot_code != 0xF4:
             raise WrongBootCodeException()
 
-        effective_length = self.connection.read(1)
-        command = self.connection.read(1)
+        effective_length = int.from_bytes(self.connection.read(1), byteorder='big')
+        command = int.from_bytes(self.connection.read(1), byteorder='big')
         data = self.connection.read(effective_length - 2)
-        checksum = self.connection.read(1)
+        checksum = int.from_bytes(self.connection.read(1), byteorder='big')
         packet = Packet(boot_code, command, data)
         logger.debug(f"Read packet: {packet}")
 
@@ -363,7 +363,7 @@ class VF747Protocol:
     def get_reader_id(self):
         raise NotImplementedError()
 
-    def list_tag_id(self, memory_bank, mask_start, mask_size, mask):
+    def list_tag_id(self, memory_bank, mask_start, mask_size, mask=bytearray()):
         """
         This functions reads all tag IDs available in the radiation field of the antenna.
 
