@@ -1,5 +1,6 @@
 from .utils import *
 from .exceptions import *
+from typing import List
 
 import logging
 logger = logging.getLogger(__name__)
@@ -409,3 +410,42 @@ class VF747Protocol:
             ptr = end  # move pointer to next id
 
         return num_tags_total, tags
+
+    def get_id_list(self, offset: int, num_tags: int) -> List[str]:
+        """
+        Get tag IDs from reader's memory
+
+        :param offset:      offset number
+        :param num_tags:    number of tag IDs to return. (Must be <= 8)
+        :return: List of tag IDs
+        """
+
+        num_tags = min(8, num_tags)
+        self.send_command(0xED, [offset, num_tags])
+        packet = self.read_return_packet()
+
+        if packet.command != 0xED:
+            raise RuntimeError("Received wrong return packet")
+
+        if packet.boot_code == 0xF4:
+            error_msg = self.error_to_str(packet.packet_data[0])
+            raise RuntimeError("Error:" + error_msg)
+
+        data = packet.packet_data
+        tags = []
+
+        ptr = 1
+        while ptr < len(data):
+            num_words = data[ptr]
+            start = ptr + 1
+            end = ptr + 1 + 2 * num_words
+
+            # Boundary check
+            if end > len(data):
+                break
+
+            tags.append(bytes_to_hex_string(data[start:end]))
+
+            ptr = end  # move pointer to next id
+
+        return tags
